@@ -32,7 +32,7 @@ public class Doctor extends Thread {
             try {
 
                 Patient patient = waitingRoom.getPatient(this);
-
+                Hospital.log(getDoctorInfo()+" is trying to acquire a treatment room");
                 roomAcquired = treatmentRooms.P_with_timeout();
 
                 if (!roomAcquired) {
