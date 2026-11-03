@@ -24,7 +24,7 @@ public class WaitingRoom {
         if (patientCount >= capacity) 
         {
             System.out.println("The waiting room is full.");
-            System.out.println(patient.getName() + " is waiting outside for an available seat.");
+            System.out.println(patient.getPatientInfo() + " is waiting outside for an available seat.");
         }
         patientCount++;
         lock.V();
@@ -33,7 +33,7 @@ public class WaitingRoom {
 
         lock.P();
         queue.add(patient);
-        System.out.println(patient.getName() + " entered the waiting room.");
+        System.out.println(patient.getPatientInfo() + " entered the waiting room.");
         lock.V();
 
         fullSeats.V();
