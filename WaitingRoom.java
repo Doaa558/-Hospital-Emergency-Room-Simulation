@@ -7,9 +7,8 @@ public class WaitingRoom {
     private final Semaphore emptySeats;
     private final Semaphore fullSeats;
     private final Semaphore lock;
-    private int patientCount = 0;
 
-    public WaitingRoom(int capacity) 
+    public WaitingRoom(int capacity)
     {
         this.capacity = capacity;
         this.queue = new LinkedList<>();
@@ -18,58 +17,47 @@ public class WaitingRoom {
         this.lock = new Semaphore(1);
     }
 
-    public void enter(Patient patient) 
+    public void enter(Patient patient)  throws InterruptedException
     {
+
         lock.P();
-        if (patientCount >= capacity) 
+        patient.display();
+        boolean gotSeat = emptySeats.tryP();
+        if (gotSeat)
         {
-            System.out.println("The waiting room is full.");
-            System.out.println(patient.getPatientInfo() + " is waiting outside for an available seat.");
+            queue.add(patient);
+            Hospital.log(patient.getPatientInfo() + " entered the waiting room.");
         }
-        patientCount++;
+        else
+        {
+            Hospital.log("The waiting room is full." + "\n" + patient.getPatientInfo() + " is waiting outside for an available seat.");
+        }
         lock.V();
 
-        emptySeats.P();
+        if (!gotSeat)
+        {
+            emptySeats.P();
 
-        lock.P();
-        queue.add(patient);
-        System.out.println(patient.getPatientInfo() + " entered the waiting room.");
-        lock.V();
+            lock.P();
+            queue.add(patient);
+            Hospital.log(patient.getPatientInfo() + " entered the waiting room.");
+            lock.V();
+        }
 
         fullSeats.V();
     }
 
-    public Patient getPatient() 
+    public Patient getPatient(Doctor doctor)  throws InterruptedException
     {
         fullSeats.P();
 
         lock.P();
         Patient patient = queue.poll();
-        patientCount--;
+        Hospital.log(doctor.getDoctorInfo() + " is assigned to " + patient.getPatientInfo() + ".");
         lock.V();
-
         emptySeats.V();
 
         return patient;
     }
 
-    public void addPatient(Patient patient) 
-    {
-        enter(patient);
-    }
-
-    public Patient takePatient() 
-    {
-        return getPatient();
-    }
-
-    public Patient removePatient() 
-    {
-        return getPatient();
-    }
-
-    public int getCapacity() 
-    {
-        return capacity;
-    }
 }

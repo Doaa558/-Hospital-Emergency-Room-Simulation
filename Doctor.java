@@ -2,6 +2,7 @@ public class Doctor extends Thread {
 
     private final int id;
     private final String name;
+
     private final WaitingRoom waitingRoom;
     private final TreatmentRooms treatmentRooms;
 
@@ -15,7 +16,7 @@ public class Doctor extends Thread {
     }
 
     public String getDoctorInfo() {
-        return name + " (Doctor #" + id + ")";
+        return "Doctor "+id;
     }
 
     public void stopWorking() {
@@ -26,40 +27,41 @@ public class Doctor extends Thread {
     @Override
     public void run() {
         while (active) {
+
+            boolean roomAcquired = false;
             try {
-                Patient patient = waitingRoom.getPatient();
 
-                System.out.println(getDoctorInfo() + " is assigned to " + patient.getPatientInfo() + ".");
-
-                boolean roomAcquired = treatmentRooms.P_with_timeout();
+                Patient patient = waitingRoom.getPatient(this);
+                Hospital.log(getDoctorInfo()+" is trying to acquire a treatment room");
+                roomAcquired = treatmentRooms.P_with_timeout();
 
                 if (!roomAcquired) {
-                    System.out.println(getDoctorInfo() + " could not acquire a treatment room in time. "
-                            + patient.getPatientInfo() + " is sent back to the waiting room.");
+                    Hospital.log(getDoctorInfo() + " could not acquire a treatment room in time. " +"\n"
+                            +getDoctorInfo()+ " is sending back "+patient.getPatientInfo() +" to the waiting room."+"\n"
+                            + getDoctorInfo() + " is now available.\n");
                     waitingRoom.enter(patient);
-
-                } else {
-
-                    System.out.println(patient.getPatientInfo() + " begins treatment in a treatment room assigned by "
-                            + getDoctorInfo() + ".");
+                }
+                else {
+                    Hospital.log(getDoctorInfo() + " acquired a treatment room." + "\n"
+                            + getDoctorInfo() + " begins treating "+ patient.getPatientInfo()+".");
 
                     int treatmentTime = 1000 + (int) (Math.random() * 3000);
                     Thread.sleep(treatmentTime);
 
-                    System.out.println(patient.getPatientInfo() + " has finished treatment.");
-                    System.out.println(patient.getPatientInfo() + " is leaving the hospital.");
 
+                    Hospital.log(getDoctorInfo() + " finished treating " + patient.getPatientInfo() + ".\n"
+                            + getDoctorInfo() + " released the treatment room."+"\n"
+                           + getDoctorInfo() + " is now available." + "\n"
+                            + patient.getPatientInfo() + " left.");
                     treatmentRooms.V();
-                    System.out.println(getDoctorInfo() + " released the treatment room.");
+
+                    Hospital.patientTreated(patient);
+
                 }
 
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
                 break;
             }
         }
-
-        System.out.println(getDoctorInfo() + " has finished their shift.");
     }
 }
-
