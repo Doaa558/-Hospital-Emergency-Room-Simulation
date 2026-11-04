@@ -1,5 +1,7 @@
 class Semaphore{
     protected int resources =0;
+    protected int rooms_still_wait=0;
+    protected int rooms_wake_up=0;
     // constructors
     protected Semaphore(){resources = 0;}
     protected Semaphore(int initial){ resources = initial;}
@@ -12,11 +14,14 @@ class Semaphore{
     }
 
     //signal function
-    public synchronized void V() {
-        resources++ ; if (resources <= 0) notify() ;
+    public synchronized void V(){
+        resources++;
+        if(resources <= 0){
+            rooms_wake_up++;
+            notify();
+        }
     }
 
-    // non-blocking wait: takes a resource only if one is free right now
     public synchronized boolean tryP() {
         if (resources > 0) {
             resources--;
@@ -26,24 +31,36 @@ class Semaphore{
     }
 
 
+
     public synchronized boolean P_with_timeout(long wait_time ){
         resources--;
-        // no empty room
-        if(resources < 0) {
+        if(resources<0){
+            rooms_still_wait++;
             long finish_time=System.nanoTime()+wait_time*1_000_000L;
-            while(finish_time>System.nanoTime()){
+            while(rooms_wake_up==0){
                 long remain_time=finish_time-System.nanoTime();
-                try { wait(remain_time/1_000_000L,(int)(remain_time%1_000_000L));} catch( InterruptedException e ){  resources++;Thread.currentThread().interrupt(); return false;}
-                if(resources>=0){
-                    return true;
+                if(remain_time<=0){
+                    rooms_still_wait--;
+                    resources++;
+                    return false;
+                }
+                try { wait(remain_time/1_000_000L,(int)(remain_time%1_000_000L));}
+                catch( InterruptedException e ){
+                    rooms_still_wait--;
+                    resources++;
+                    Thread.currentThread().interrupt();
+                    return false;
                 }
             }
-            resources++;
-            return false;
+            rooms_still_wait--;
+            rooms_wake_up--;
+            return true;
         }
+
         // empty room
         else{
             return true;
         }
+
     }
 }
