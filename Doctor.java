@@ -39,7 +39,19 @@ public class Doctor extends Thread {
                     Hospital.log(getDoctorInfo() + " could not acquire a treatment room in time. " +"\n"
                             +getDoctorInfo()+ " is sending back "+patient.getPatientInfo() +" to the waiting room."+"\n"
                             + getDoctorInfo() + " is now available.\n");
-                    waitingRoom.enter(patient);
+                    Runnable task = new Runnable() 
+                    {
+                        public void run() 
+                        {
+                            try 
+                            {
+                                waitingRoom.enter(patient);
+                            }catch (InterruptedException e) 
+                            {
+                            }
+    }
+};
+new Thread(task).start();
                 }
                 else {
                     Hospital.log(getDoctorInfo() + " acquired a treatment room." + "\n"
