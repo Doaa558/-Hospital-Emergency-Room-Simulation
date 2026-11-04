@@ -10,7 +10,14 @@ class Semaphore{
     public synchronized void P() throws InterruptedException {
         resources-- ;
         if(resources < 0)
-            try { wait() ; } catch( InterruptedException e ){ throw new InterruptedException(); }
+            try 
+            { wait();
+            } 
+            catch( InterruptedException e )
+            {
+                resources++;
+                throw new InterruptedException(); 
+            }
     }
 
     //signal function
