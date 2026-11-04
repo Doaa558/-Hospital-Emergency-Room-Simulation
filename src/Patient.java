@@ -1,9 +1,10 @@
-
 class Patient extends Thread {
 
     private int id;
     private String name;
     private WaitingRoom waitingRoom;
+    private boolean flag = true;
+    private boolean active = false;
 
     public Patient(WaitingRoom waitingRoom, String name, int id) {
         this.waitingRoom = waitingRoom;
@@ -16,8 +17,16 @@ class Patient extends Thread {
     }
 
     public void display() {
-        Hospital.log(getPatientInfo() +" arrived.");
+        if (flag) {
+            Hospital.log(getPatientInfo() + " arrived.");
+            flag = false;
+        }
 
+    }
+
+    public void exit() {
+        active = false;
+        this.interrupt();
     }
 
     public void run() {

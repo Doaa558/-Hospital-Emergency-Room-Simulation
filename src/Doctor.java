@@ -37,7 +37,8 @@ public class Doctor extends Thread {
 
                 if (!roomAcquired) {
                     Hospital.log(getDoctorInfo() + " could not acquire a treatment room in time. " +"\n"
-                            +getDoctorInfo()+ " is sening back "+patient.getPatientInfo() +" to the waiting room.");
+                            +getDoctorInfo()+ " is sending back "+patient.getPatientInfo() +" to the waiting room."+"\n"
+                            + getDoctorInfo() + " is now available.\n");
                     waitingRoom.enter(patient);
                 }
                 else {
@@ -50,11 +51,11 @@ public class Doctor extends Thread {
 
                     Hospital.log(getDoctorInfo() + " finished treating " + patient.getPatientInfo() + ".\n"
                             + getDoctorInfo() + " released the treatment room."+"\n"
-                           + getDoctorInfo() + " is now available.\n"
+                           + getDoctorInfo() + " is now available." + "\n"
                             + patient.getPatientInfo() + " left.");
                     treatmentRooms.V();
 
-                    Hospital.patientTreated();
+                    Hospital.patientTreated(patient);
 
                 }
 

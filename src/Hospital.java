@@ -15,7 +15,6 @@ public class Hospital {
     private WaitingRoom waitingRoom ;
 
     private static List<Doctor> doctors = new  ArrayList<>();
-    private static List<Patient> patients = new  ArrayList<>();
     private static List<Thread> threads = new ArrayList<>();
 
     private static final Object PRINT_LOCK = new Object();
@@ -28,9 +27,10 @@ public class Hospital {
         }
     }
 
-    public static void patientTreated() {
+    public static void patientTreated(Patient patient) {
         synchronized (TREAT_LOCK) {
             treated++;
+            patient.exit();
             if (treated >= PAT_NUM) {
                 for (Doctor doctor : doctors) {
                     doctor.stopWorking();
@@ -41,14 +41,25 @@ public class Hospital {
 
     public Hospital(){
         Scanner sc = new Scanner(System.in);
+        System.out.print("Waiting room capacity: ");
         int waitingRoom_size = sc.nextInt();
+        System.out.print("Number of doctors: ");
         int doctor_num = sc.nextInt();
+        System.out.print("Number of patients: ");
         int patient_num = sc.nextInt();
+
+        System.out.println("\n");
 
         this.DOC_NUM = doctor_num;
         this.PAT_NUM = patient_num;
 
         waitingRoom = new WaitingRoom(waitingRoom_size);
+
+        System.out.println("Patients arriving: ");
+        for  (int i = 1; i <= PAT_NUM; i++) {
+            System.out.print("P" + i + " ");
+        }
+        System.out.println("\n");
     }
 
     public void start() throws InterruptedException {
