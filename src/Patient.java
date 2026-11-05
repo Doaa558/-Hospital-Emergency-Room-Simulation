@@ -21,7 +21,6 @@ class Patient extends Thread {
             Hospital.log(getPatientInfo() + " arrived.");
             flag = false;
         }
-
     }
 
     public void exit() {
@@ -32,7 +31,9 @@ class Patient extends Thread {
     public void run() {
         try {
             waitingRoom.enter(this);
-        }catch(InterruptedException e){
+        }
+        catch(InterruptedException e){
+
         }
     }
 }

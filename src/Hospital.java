@@ -8,8 +8,8 @@ public class Hospital {
     private static int PAT_NUM;
     private static int treated = 0;
 
-    long minSleep = 10;
-    long maxSleep = 1000;
+    long minSleep = 50;
+    long maxSleep = 300;
 
     private TreatmentRooms treatmentRooms = new TreatmentRooms();
     private WaitingRoom waitingRoom ;
@@ -23,7 +23,7 @@ public class Hospital {
     public static void log(String msg) {
         synchronized (PRINT_LOCK) {
             System.out.println(msg);
-            System.out.println("___________________________");
+            System.out.print("\n");
         }
     }
 
@@ -84,12 +84,8 @@ public class Hospital {
 
         for (Thread thread : threads) {
             if (thread instanceof Patient) {
-
-                long rand = ThreadLocalRandom.current()
-                        .nextLong(minSleep, maxSleep);
-
+                long rand = ThreadLocalRandom.current().nextLong(minSleep, maxSleep);
                 thread.start();
-
                 Thread.sleep(rand);
             }
         }
